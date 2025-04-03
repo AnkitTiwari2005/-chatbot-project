@@ -1,4 +1,5 @@
 package backend;
+
 import com.sun.net.httpserver.*;
 import java.io.*;
 import java.net.*;
@@ -11,7 +12,7 @@ public class ChatBotServer {
     public static void main(String[] args) throws IOException {
         int port = Integer.parseInt(System.getenv("PORT"));
         HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", port), 0);
-        
+
         // Serve static files (Frontend)
         server.createContext("/", new StaticFileHandler());
 
@@ -24,22 +25,20 @@ public class ChatBotServer {
         System.out.println("Server started on http://localhost:" + port + "/");
     }
 
-    // Handles serving frontend files
+    // Handles serving frontend files with CORS support
     static class StaticFileHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, OPTIONS");
-        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
-    
-    if ("OPTIONS".equals(exchange.getRequestMethod())) {
-        exchange.sendResponseHeaders(204, -1);
-        return;
-    }
-        @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            String filePath = "frontend" + (exchange.getRequestURI().getPath().equals("/") ? "/index.html" : exchange.getRequestURI().getPath());
+            exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, OPTIONS");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
 
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                exchange.sendResponseHeaders(204, -1);
+                return;
+            }
+
+            String filePath = "frontend" + (exchange.getRequestURI().getPath().equals("/") ? "/index.html" : exchange.getRequestURI().getPath());
             File file = new File(filePath);
             if (!file.exists()) {
                 exchange.sendResponseHeaders(404, -1);
@@ -56,6 +55,15 @@ public class ChatBotServer {
     static class ChatHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "POST, OPTIONS");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                exchange.sendResponseHeaders(204, -1);
+                return;
+            }
+
             if ("POST".equals(exchange.getRequestMethod())) {
                 try (BufferedReader br = new BufferedReader(new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8))) {
                     StringBuilder requestBody = new StringBuilder();
