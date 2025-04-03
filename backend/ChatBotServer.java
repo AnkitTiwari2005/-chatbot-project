@@ -20,7 +20,7 @@ public class ChatBotServer {
         server.setExecutor(null);
         server.start();
 
-        System.out.println("✅ Server started on http://localhost:8080/");6g
+        System.out.println("✅ Server started on http://localhost:8080/");
     }
 
     // Handles serving frontend files
