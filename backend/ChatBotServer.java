@@ -28,6 +28,16 @@ public class ChatBotServer {
     static class StaticFileHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, OPTIONS");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+    
+    if ("OPTIONS".equals(exchange.getRequestMethod())) {
+        exchange.sendResponseHeaders(204, -1);
+        return;
+    }
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
             String filePath = "frontend" + (exchange.getRequestURI().getPath().equals("/") ? "/index.html" : exchange.getRequestURI().getPath());
 
             File file = new File(filePath);
