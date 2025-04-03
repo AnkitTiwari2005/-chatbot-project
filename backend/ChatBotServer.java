@@ -9,7 +9,8 @@ public class ChatBotServer {
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
     public static void main(String[] args) throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+        int port = Integer.parseInt(System.getenv("PORT"));
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         
         // Serve static files (Frontend)
         server.createContext("/", new StaticFileHandler());
@@ -20,7 +21,7 @@ public class ChatBotServer {
         server.setExecutor(null);
         server.start();
 
-        System.out.println("✅ Server started on http://localhost:8080/");
+        System.out.println("Server started on http://localhost:" + port + "/");
     }
 
     // Handles serving frontend files
@@ -78,7 +79,7 @@ public class ChatBotServer {
         private String getBotResponse(String message) throws IOException {
             String apiKey = System.getenv("OPENAI_API_KEY");
             if (apiKey == null || apiKey.isEmpty()) {
-                return "❌ Error: API key is missing!";
+                return "Error: API key is missing!";
             }
 
             HttpURLConnection conn = null;
@@ -99,7 +100,7 @@ public class ChatBotServer {
                 }
 
                 if (conn.getResponseCode() != 200) {
-                    return "❌ Error: API returned code " + conn.getResponseCode();
+                    return "Error: API returned code " + conn.getResponseCode();
                 }
 
                 String responseString = readStream(conn.getInputStream());
@@ -107,7 +108,7 @@ public class ChatBotServer {
                 return responseJson.getJSONArray("choices").getJSONObject(0).getJSONObject("message").getString("content");
             } catch (Exception e) {
                 e.printStackTrace();
-                return "❌ Error: Failed to fetch response from API.";
+                return "Error: Failed to fetch response from API.";
             } finally {
                 if (conn != null) conn.disconnect();
             }
