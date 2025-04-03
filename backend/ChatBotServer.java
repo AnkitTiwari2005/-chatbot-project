@@ -29,8 +29,9 @@ public class ChatBotServer {
     static class StaticFileHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            // Add CORS headers
             exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, OPTIONS");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
             exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
 
             if ("OPTIONS".equals(exchange.getRequestMethod())) {
@@ -38,7 +39,10 @@ public class ChatBotServer {
                 return;
             }
 
-            String filePath = "frontend" + (exchange.getRequestURI().getPath().equals("/") ? "/index.html" : exchange.getRequestURI().getPath());
+            // Use absolute path to serve static files
+            String filePath = System.getProperty("user.dir") + "/frontend" +
+                    (exchange.getRequestURI().getPath().equals("/") ? "/index.html" : exchange.getRequestURI().getPath());
+
             File file = new File(filePath);
             if (!file.exists()) {
                 exchange.sendResponseHeaders(404, -1);
