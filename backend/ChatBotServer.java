@@ -26,10 +26,18 @@ public class ChatBotServer {
         // Chat API Endpoint
         server.createContext("/chat", new ChatHandler());
 
+        // ✅ New Ping Endpoint for Testing
+        server.createContext("/ping", exchange -> {
+            String response = "pong";
+            exchange.sendResponseHeaders(200, response.length());
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(response.getBytes());
+            }
+        });
+
         server.setExecutor(null); // creates a default executor
         server.start();
 
-        // ✅ Updated this line for correct Railway behavior
         System.out.println("Server started on http://0.0.0.0:" + port + "/");
     }
 
