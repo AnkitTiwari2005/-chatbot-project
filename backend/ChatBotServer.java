@@ -14,7 +14,7 @@ public class ChatBotServer {
         if (portStr == null || portStr.isEmpty()) {
             throw new IllegalStateException("PORT environment variable not set");
         }
-        
+
         String apiKey = System.getenv("OPENAI_API_KEY");
         if (apiKey == null || apiKey.isEmpty()) {
             throw new IllegalStateException("OPENAI_API_KEY environment variable not set");
@@ -23,16 +23,14 @@ public class ChatBotServer {
         int port = Integer.parseInt(portStr);
         HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", port), 0);
 
-        // Removed static file serving (Handled via GitHub Pages)
-        // server.createContext("/", new StaticFileHandler());
-
         // Chat API Endpoint
         server.createContext("/chat", new ChatHandler());
 
-        server.setExecutor(null);
+        server.setExecutor(null); // creates a default executor
         server.start();
 
-        System.out.println("Server started on http://localhost:" + port + "/");
+        // ✅ Updated this line for correct Railway behavior
+        System.out.println("Server started on http://0.0.0.0:" + port + "/");
     }
 
     static class ChatHandler implements HttpHandler {
