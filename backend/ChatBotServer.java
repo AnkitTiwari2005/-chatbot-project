@@ -23,10 +23,10 @@ public class ChatBotServer {
         int port = Integer.parseInt(portStr);
         HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", port), 0);
 
-        // Removed static file serving to avoid conflict with GitHub Pages
+        // Removed static file serving (Handled via GitHub Pages)
         // server.createContext("/", new StaticFileHandler());
 
-        // Chat API
+        // Chat API Endpoint
         server.createContext("/chat", new ChatHandler());
 
         server.setExecutor(null);
@@ -35,20 +35,20 @@ public class ChatBotServer {
         System.out.println("Server started on http://localhost:" + port + "/");
     }
 
-    // Handles chat API requests with CORS support
     static class ChatHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
+            // CORS Headers
             exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "POST, OPTIONS");
             exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
 
-            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+            if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
                 exchange.sendResponseHeaders(204, -1);
                 return;
             }
 
-            if ("POST".equals(exchange.getRequestMethod())) {
+            if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
                 try (BufferedReader br = new BufferedReader(new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8))) {
                     StringBuilder requestBody = new StringBuilder();
                     String line;
@@ -64,10 +64,10 @@ public class ChatBotServer {
                     JSONObject responseJson = new JSONObject();
                     responseJson.put("response", botResponse);
 
-                    String responseText = responseJson.toString();
-                    exchange.sendResponseHeaders(200, responseText.getBytes().length);
+                    byte[] responseBytes = responseJson.toString().getBytes(StandardCharsets.UTF_8);
+                    exchange.sendResponseHeaders(200, responseBytes.length);
                     try (OutputStream os = exchange.getResponseBody()) {
-                        os.write(responseText.getBytes());
+                        os.write(responseBytes);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
