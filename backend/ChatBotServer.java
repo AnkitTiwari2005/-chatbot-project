@@ -10,7 +10,17 @@ public class ChatBotServer {
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
     public static void main(String[] args) throws IOException {
-        int port = Integer.parseInt(System.getenv("PORT"));
+        String portStr = System.getenv("PORT");
+        if (portStr == null || portStr.isEmpty()) {
+            throw new IllegalStateException("PORT environment variable not set");
+        }
+        
+        String apiKey = System.getenv("OPENAI_API_KEY");
+        if (apiKey == null || apiKey.isEmpty()) {
+            throw new IllegalStateException("OPENAI_API_KEY environment variable not set");
+        }
+
+        int port = Integer.parseInt(portStr);
         HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", port), 0);
 
         // Serve static files (Frontend)
