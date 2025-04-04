@@ -23,8 +23,8 @@ public class ChatBotServer {
         int port = Integer.parseInt(portStr);
         HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", port), 0);
 
-        // Serve static files (Frontend)
-        server.createContext("/", new StaticFileHandler());
+        // Removed static file serving to avoid conflict with GitHub Pages
+        // server.createContext("/", new StaticFileHandler());
 
         // Chat API
         server.createContext("/chat", new ChatHandler());
@@ -35,37 +35,7 @@ public class ChatBotServer {
         System.out.println("Server started on http://localhost:" + port + "/");
     }
 
-    // Handles serving frontend files with CORS support
-    static class StaticFileHandler implements HttpHandler {
-        @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            // Add CORS headers
-            exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
-
-            if ("OPTIONS".equals(exchange.getRequestMethod())) {
-                exchange.sendResponseHeaders(204, -1);
-                return;
-            }
-
-            // Use absolute path to serve static files
-            String filePath = System.getProperty("user.dir") + "/frontend" +
-                    (exchange.getRequestURI().getPath().equals("/") ? "/index.html" : exchange.getRequestURI().getPath());
-
-            File file = new File(filePath);
-            if (!file.exists()) {
-                exchange.sendResponseHeaders(404, -1);
-                return;
-            }
-
-            exchange.sendResponseHeaders(200, file.length());
-            try (OutputStream os = exchange.getResponseBody(); FileInputStream fs = new FileInputStream(file)) {
-                fs.transferTo(os);
-            }
-        }
-    }
-
+    // Handles chat API requests with CORS support
     static class ChatHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
