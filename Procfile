@@ -1,1 +1,1 @@
-web: java -cp ".:backend:libs/*" backend.ChatBotServer
+web: java -cp ".:libs/*" backend.ChatBotServer
